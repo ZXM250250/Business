@@ -1,0 +1,10 @@
+appName = "ciecle_web"
+
+[sql]
+host = "42.193.99.4"
+name = "circle_web"
+password = "rootWangXi250250"
+port = 3306
+tablePrefix = ""
+user = "root"
+timeout="10s"

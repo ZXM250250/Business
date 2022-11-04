@@ -1,0 +1,15 @@
+#声明版本
+version: "3"
+services:
+  #如果要数据保留需要自己挂载目录
+  cart-api:
+    #说明采用的镜像地址
+    image: cap1573/cartapi-api
+    ports:
+      - "8086:8086"
+  cart-service:
+    #说明采用的镜像地址
+    image: cap1573/cart-service
+    ports:
+      - "8087:8087"
+

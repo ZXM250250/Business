@@ -1,0 +1,75 @@
+#声明版本
+version: "3"
+services:
+  #如果要数据保留需要自己挂载目录
+  mysql:
+    #说明采用的镜像地址
+    image: cap1573/mysql:5.6
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+    ports:
+      - "3306:3306"
+  #服务名称，并且这个服务名称能够在同一个网络进行访问
+  consul:
+    #说明采用的镜像地址
+    image: cap1573/consul
+    ports:
+      - "8500:8500"
+  #链路追踪
+  jaeger:
+    image: cap1573/jaeger
+    ports:
+      - "6831:6831/udp"
+      - "16686:16686"
+  #监控
+  prometheus:
+    image: cap1573/prometheus
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+  #监控看板
+  grafana:
+    image: cap1573/grafana
+    ports:
+      - "3000:3000"
+
+  #熔断器
+  hystrix-dashboard:
+    #说明镜像名称
+    image: cap1573/hystrix-dashboard
+    ports:
+      - "9002:9002"
+  # ELK
+  elasticsearch:
+    image: cap1573/elasticsearch:7.9.3
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    volumes:
+      - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+    environment:
+      ES_JAVA_OPTS: "-Xmx256m -Xms256m"
+      ELASTIC_PASSWORD: imoocpwd
+      discovery.type: single-node
+      network.publish_host: _eth0_
+  logstash:
+    image: cap1573/logstash:7.9.3
+    ports:
+      - "5044:5044"
+      - "5000:5000"
+      - "9600:9600"
+    volumes:
+      - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml
+      - ./logstash/pipeline/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+    environment:
+      LS_JAVA_OPTS: "-Xmx256m -Xms256m"
+  kibana:
+    image: cap1573/kibana:7.9.3
+    ports:
+      - "5601:5601"
+    volumes:
+      - ./kibana/config/kibana.yml:/usr/share/kibana/config/kibana.yml
+    #后加的优化，这里的意思是，要等待 elasticsearch 启动正常
+    depends_on:
+      - elasticsearch
